@@ -48,7 +48,7 @@ def main():
     st.write("Excelファイルのすべてのセルをひらがなに変換します")
     
     # ファイルアップローダーの表示
-    uploaded_file = st.file_uploader("Excelファイルを選択してください", type=['xlsx', 'xls'])
+    uploaded_file = st.file_uploader("下のボタンを押してExcelファイルを選択するか，ファイルをドラッグアンドドロップしてください", type=['xlsx', 'xls'])
     
     if uploaded_file is not None:
         try:
@@ -81,3 +81,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
