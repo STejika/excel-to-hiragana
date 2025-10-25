@@ -16,15 +16,27 @@ def convert_to_hiragana(text):
     return hiragana
 
 def process_excel_file(file):
-    """Excelファイルの全セルの内容をひらがなに変換する"""
-    # Excelファイルを読み込む
-    df = pd.read_excel(file)
+    """Excelファイルの全シートの全セルの内容をひらがなに変換する"""
+    # Excelファイルの全シートを読み込む
+    excel_file = pd.ExcelFile(file)
+    sheet_names = excel_file.sheet_names
     
-    # 全てのセルに対してひらがな変換を適用
-    for column in df.columns:
-        df[column] = df[column].apply(convert_to_hiragana)
+    # 各シートのDataFrameを保存する辞書
+    dfs = {}
     
-    return df
+    # 各シートに対して処理を実行
+    for sheet_name in sheet_names:
+        # シートを読み込む
+        df = pd.read_excel(file, sheet_name=sheet_name)
+        
+        # 全てのセルに対してひらがな変換を適用
+        for column in df.columns:
+            df[column] = df[column].apply(convert_to_hiragana)
+        
+        # 変換済みのDataFrameを辞書に保存
+        dfs[sheet_name] = df
+    
+    return dfs
 
 def main():
     st.title("Excel ひらがな変換アプリ")
@@ -36,16 +48,20 @@ def main():
     if uploaded_file is not None:
         try:
             # ファイルの処理
-            converted_df = process_excel_file(uploaded_file)
+            converted_dfs = process_excel_file(uploaded_file)
             
             # 変換結果の表示
             st.write("変換結果:")
-            st.dataframe(converted_df)
+            for sheet_name, df in converted_dfs.items():
+                st.write(f"シート: {sheet_name}")
+                st.dataframe(df)
+                st.divider()  # シート間の区切り線
             
             # 変換済みファイルのダウンロード用にExcelファイルを作成
             output = BytesIO()
             with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                converted_df.to_excel(writer, index=False)
+                for sheet_name, df in converted_dfs.items():
+                    df.to_excel(writer, sheet_name=sheet_name, index=False)
             
             # ダウンロードボタンの表示
             st.download_button(
