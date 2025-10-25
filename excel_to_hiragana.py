@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import pykakasi
+import xlrd  # .xls ファイル用
+import openpyxl  # .xlsx ファイル用
 from io import BytesIO
 
 def convert_to_hiragana(text):
@@ -17,6 +19,9 @@ def convert_to_hiragana(text):
 
 def process_excel_file(file):
     """Excelファイルの全シートの全セルの内容をひらがなに変換する"""
+    # ファイル拡張子の確認
+    file_extension = file.name.split('.')[-1].lower()
+    
     # Excelファイルの全シートを読み込む
     excel_file = pd.ExcelFile(file)
     sheet_names = excel_file.sheet_names
